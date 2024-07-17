@@ -1,6 +1,6 @@
 import type { RegisterOptions } from 'react-hook-form'
 
-type RuleTypes = { [key in 'email' | 'password']?: RegisterOptions }
+// type RuleTypes = { [key in 'email' | 'password']?: RegisterOptions }
 type Rules = { [key in 'email' | 'password' | 'confirm_password']: RegisterOptions }
 
 export const rules: Rules = {
