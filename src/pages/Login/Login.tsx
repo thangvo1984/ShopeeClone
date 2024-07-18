@@ -1,38 +1,58 @@
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
+import Input from 'src/components/Input'
+import { loginSchema, LoginSchema } from 'src/utils/rules'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 const Login = () => {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors }
-  } = useForm()
+  } = useForm<LoginSchema>({
+    resolver: yupResolver(loginSchema)
+  })
+
+  const onSubmit = handleSubmit(
+    (data) => {
+      console.log('data=========', data)
+    },
+    (data) => {
+      const password = getValues('password')
+      console.log('password=========', password)
+    }
+  )
+
+  console.log('errors=========', errors)
 
   return (
     <div className='bg-orange'>
-      <div className='max-w-7xl mx-auto px-4'>
+      <div className='container'>
         <div className='grid grid-cols-1 lg:grid-cols-5 lg:py-12 lg:pr-10'>
           <div className='lg:col-span-2 lg:col-start-4'>
-            <form className='p-10 rounded bg-white shadow-sm'>
+            <form className='p-10 rounded bg-white shadow-sm' onSubmit={onSubmit} noValidate>
               <div className='text-2xl'>Đăng nhập</div>
-              <div className='mt-8'>
-                <input
-                  type='email'
-                  name='email'
-                  className='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                  placeholder='Email'
-                />
-                <div className='mt-1 text-red-600 min-h-[1rem] text-sm'></div>
-              </div>
-              <div className='mt-3'>
-                <input
-                  type='password'
-                  name='password'
-                  className='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                  placeholder='Password'
-                />
-                <div className='mt-1 text-red-600 min-h-[1rem] text-sm'></div>
-              </div>
+              <Input
+                type='email'
+                classNameParent='mt-8'
+                classNameInput='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+                placeholder='Email'
+                autoComplete='on'
+                name='email'
+                register={register}
+                errorMessage={errors.email?.message}
+              />
+              <Input
+                type='password'
+                classNameParent='mt-2'
+                classNameInput='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+                placeholder='Password'
+                autoComplete='on'
+                errorMessage={errors.password?.message}
+                name='password'
+                register={register}
+              />
               <div className='mt-3'>
                 <button className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'>
                   Đăng nhập
