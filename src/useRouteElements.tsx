@@ -1,25 +1,38 @@
-import { useRoutes } from "react-router-dom";
-import RegisterLayout from "src/layouts/RegisterLayout";
-import Login from "src/pages/Login";
-import ProductList from "src/pages/ProductList/ProductList";
-import Register from "src/pages/Register";
+import { useRoutes } from 'react-router-dom'
+import MainLayout from 'src/layouts/MainLayout'
+import RegisterLayout from 'src/layouts/RegisterLayout'
+import Login from 'src/pages/Login'
+import ProductList from 'src/pages/ProductList/ProductList'
+import Register from 'src/pages/Register'
 
 const useRouteElements = () => {
   const routeElements = useRoutes([
     {
       path: '/',
-      element: <ProductList />
+      element: (
+        <MainLayout>
+          <ProductList />
+        </MainLayout>
+      )
     },
     {
       path: '/login',
-      element: <RegisterLayout><Login /></RegisterLayout>
+      element: (
+        <RegisterLayout>
+          <Login />
+        </RegisterLayout>
+      )
     },
     {
       path: '/register',
-      element: <RegisterLayout><Register /></RegisterLayout>
-    },
+      element: (
+        <RegisterLayout>
+          <Register />
+        </RegisterLayout>
+      )
+    }
   ])
   return routeElements
-};
+}
 
-export default useRouteElements;
+export default useRouteElements

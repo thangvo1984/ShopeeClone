@@ -3,28 +3,51 @@ import { Link } from 'react-router-dom'
 import Input from 'src/components/Input'
 import { loginSchema, LoginSchema } from 'src/utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useMutation } from '@tanstack/react-query'
+import { login } from 'src/apis/auth.api'
+import { isAxiosUnprocessableEntityError } from 'src/utils/util'
+import { ResponseApi } from 'src/types/utils.type'
 
 const Login = () => {
   const {
     register,
     handleSubmit,
-    getValues,
+    setError,
     formState: { errors }
   } = useForm<LoginSchema>({
     resolver: yupResolver(loginSchema)
   })
 
+  const loginMutatation = useMutation({
+    mutationFn: (body: LoginSchema) => login(body),
+    onError: (error) => {
+      if (isAxiosUnprocessableEntityError<ResponseApi<LoginSchema>>(error)) {
+        const formError = error.response?.data.data
+        if (formError) {
+          Object.keys(formError).forEach((key) => {
+            console.log('formError=========', formError)
+            console.log('key=========', key)
+            console.log('errors=========', formError[key as keyof LoginSchema])
+
+            setError(key as keyof LoginSchema, {
+              message: formError[key as keyof LoginSchema],
+              type: 'Server'
+            })
+          })
+        }
+      }
+    }
+  })
+
   const onSubmit = handleSubmit(
     (data) => {
       console.log('data=========', data)
+      loginMutatation.mutate(data)
     },
     (data) => {
-      const password = getValues('password')
-      console.log('password=========', password)
+      console.log('errors=========', data)
     }
   )
-
-  console.log('errors=========', errors)
 
   return (
     <div className='bg-orange'>

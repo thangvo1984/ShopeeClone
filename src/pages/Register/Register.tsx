@@ -1,42 +1,55 @@
-import { RegisterOptions, useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
-import Input from 'src/components/Input'
-import { getRules, Schema } from 'src/utils/rules'
-import { schema } from 'src/utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
-
-interface FormState {
-  email: string
-  password: string
-  confirm_password: string
-}
+import { useMutation } from '@tanstack/react-query'
+import _ from 'lodash'
+import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+import { registerAccount } from 'src/apis/auth.api'
+import Input from 'src/components/Input'
+import { ResponseApi } from 'src/types/utils.type'
+import { Schema, schema } from 'src/utils/rules'
+import { isAxiosUnprocessableEntityError } from 'src/utils/util'
 
 const Register = () => {
   const {
     register,
     handleSubmit,
-    watch,
-    getValues,
+    setError,
     formState: { errors }
   } = useForm<Schema>({
     resolver: yupResolver(schema)
   })
 
-  // const rules = getRules(getValues)
+  const registerAccountMutation = useMutation({
+    mutationFn: (body: Omit<Schema, 'confirm_password'>) => registerAccount(body),
+    onError: (error) => {
+      if (isAxiosUnprocessableEntityError<ResponseApi<Omit<Schema, 'confirm_password'>>>(error)) {
+        const formError = error.response?.data.data
+
+        if (formError) {
+          Object.keys(formError).forEach((key) => {
+            setError(key as keyof Omit<Schema, 'confirm_password'>, {
+              message: formError[key as keyof Omit<Schema, 'confirm_password'>],
+              type: 'Server'
+            })
+          })
+        }
+      }
+    }
+  })
 
   const onSubmit = handleSubmit(
     (data) => {
-      console.log('data=========', data)
+      const body = _.omit(data, ['confirm_password'])
+      registerAccountMutation.mutate(body, {
+        onSuccess: (data) => {
+          console.log('data=======', data)
+        }
+      })
     },
     (data) => {
-      // const password = getValues('password')
       console.log('errors=========', errors)
     }
   )
-
-  // console.log('errors=========', errors)
-  // const formValue = watch('email')
-  // console.log('formValue=========', formValue)
 
   return (
     <div className='bg-orange'>
@@ -55,17 +68,7 @@ const Register = () => {
                 errorMessage={errors.email?.message}
                 name='email'
                 register={register}
-                // rules={rules.email}
               />
-
-              {/* <input
-                  type='email'
-                  className='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                  placeholder='Email'
-                  {...register('email', rules.email as RegisterOptions<FormData, 'email'>)}
-                />
-                <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm'>{errors.email?.message}</div>*/}
-
               <Input
                 type='password'
                 classNameParent='mt-2'
@@ -75,17 +78,7 @@ const Register = () => {
                 errorMessage={errors.password?.message}
                 name='password'
                 register={register}
-                // rules={rules.password}
               />
-              {/* <input
-                  type='password'
-                  className='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                  placeholder='Password'
-                  autoComplete='on'
-                  {...register('password', rules.password as RegisterOptions<FormData, 'password'>)}
-                /> */}
-              {/* <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm'>{errors.password?.message}</div> */}
-
               <Input
                 type='password'
                 classNameParent='mt-2'
@@ -95,26 +88,7 @@ const Register = () => {
                 errorMessage={errors.confirm_password?.message}
                 name='confirm_password'
                 register={register}
-                // rules={rules.confirm_password}
               />
-              {/* <input
-                  type='password'
-                  className='p-3 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
-                  placeholder='Confirm password'
-                  autoComplete='on'
-                  {...register(
-                    'confirm_password',
-                    // {
-                    // ...rules.password,
-                    // validate: (value) => {
-                    //   return value === getValues('password') || 'Nhập lại confirm password'
-                    // }
-                    // }
-                    rules.confirm_password as RegisterOptions<FormData, 'confirm_password'>
-                  )}
-                /> */}
-              {/* <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm'>{errors.confirm_password?.message}</div> */}
-
               <div className='mt-2'>
                 <button className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'>
                   Đăng ký
