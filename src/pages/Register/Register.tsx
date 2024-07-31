@@ -1,11 +1,16 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
 import _ from 'lodash'
+import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { registerAccount } from 'src/apis/auth.api'
+import Button from 'src/components/Button'
 import Input from 'src/components/Input'
-import { ResponseApi } from 'src/types/utils.type'
+import { path } from 'src/constant/path'
+import { AppContext } from 'src/contexts/app.context'
+import { ErrorResponse } from 'src/types/utils.type'
+import { setProfileToLS } from 'src/utils/auth'
 import { Schema, schema } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/util'
 
@@ -19,10 +24,13 @@ const Register = () => {
     resolver: yupResolver(schema)
   })
 
+  const { setIsAuthenticated } = useContext(AppContext)
+  const navigate = useNavigate()
+
   const registerAccountMutation = useMutation({
     mutationFn: (body: Omit<Schema, 'confirm_password'>) => registerAccount(body),
     onError: (error) => {
-      if (isAxiosUnprocessableEntityError<ResponseApi<Omit<Schema, 'confirm_password'>>>(error)) {
+      if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<Schema, 'confirm_password'>>>(error)) {
         const formError = error.response?.data.data
 
         if (formError) {
@@ -41,8 +49,25 @@ const Register = () => {
     (data) => {
       const body = _.omit(data, ['confirm_password'])
       registerAccountMutation.mutate(body, {
-        onSuccess: (data) => {
-          console.log('data=======', data)
+        onSuccess(data) {
+          setIsAuthenticated(true)
+          setProfileToLS(data.data.data.user)
+
+          navigate('/')
+        },
+        onError(error) {
+          if (isAxiosUnprocessableEntityError<ErrorResponse<Schema>>(error)) {
+            const formError = error.response?.data.data
+
+            if (formError) {
+              Object.keys(formError).forEach((key) => {
+                setError(key as keyof Schema, {
+                  message: formError[key as keyof Schema],
+                  type: 'Server'
+                })
+              })
+            }
+          }
         }
       })
     },
@@ -90,13 +115,17 @@ const Register = () => {
                 register={register}
               />
               <div className='mt-2'>
-                <button className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'>
+                <Button
+                  className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
+                  isLoading={registerAccountMutation.isPending}
+                  disabled={registerAccountMutation.isPending}
+                >
                   Đăng ký
-                </button>
+                </Button>
               </div>
               <div className='flex items-center justify-center gap-1 mt-2'>
                 <span className='text-slate-400'>Bạn đã có tài khoản?</span>
-                <Link to='/login' className='text-slate-400'>
+                <Link to={path.login} className='text-slate-400'>
                   Đăng nhập
                 </Link>
               </div>

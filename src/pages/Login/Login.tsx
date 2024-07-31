@@ -1,12 +1,16 @@
-import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
-import Input from 'src/components/Input'
-import { loginSchema, LoginSchema } from 'src/utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
+import { useContext } from 'react'
+import { useForm } from 'react-hook-form'
+import { Link, useNavigate } from 'react-router-dom'
 import { login } from 'src/apis/auth.api'
+import Button from 'src/components/Button'
+import Input from 'src/components/Input'
+import { path } from 'src/constant/path'
+import { AppContext } from 'src/contexts/app.context'
+import { ErrorResponse } from 'src/types/utils.type'
+import { loginSchema, LoginSchema } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/util'
-import { ResponseApi } from 'src/types/utils.type'
 
 const Login = () => {
   const {
@@ -18,10 +22,13 @@ const Login = () => {
     resolver: yupResolver(loginSchema)
   })
 
-  const loginMutatation = useMutation({
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
+  const navigate = useNavigate()
+
+  const loginMutation = useMutation({
     mutationFn: (body: LoginSchema) => login(body),
     onError: (error) => {
-      if (isAxiosUnprocessableEntityError<ResponseApi<LoginSchema>>(error)) {
+      if (isAxiosUnprocessableEntityError<ErrorResponse<LoginSchema>>(error)) {
         const formError = error.response?.data.data
         if (formError) {
           Object.keys(formError).forEach((key) => {
@@ -42,7 +49,27 @@ const Login = () => {
   const onSubmit = handleSubmit(
     (data) => {
       console.log('data=========', data)
-      loginMutatation.mutate(data)
+      loginMutation.mutate(data, {
+        onSuccess(data) {
+          setIsAuthenticated(true)
+          setProfile(data.data.data.user)
+          navigate('/')
+        },
+        onError(error) {
+          if (isAxiosUnprocessableEntityError<ErrorResponse<LoginSchema>>(error)) {
+            const formError = error.response?.data.data
+
+            if (formError) {
+              Object.keys(formError).forEach((key) => {
+                setError(key as keyof LoginSchema, {
+                  message: formError[key as keyof LoginSchema],
+                  type: 'Server'
+                })
+              })
+            }
+          }
+        }
+      })
     },
     (data) => {
       console.log('errors=========', data)
@@ -77,13 +104,18 @@ const Login = () => {
                 register={register}
               />
               <div className='mt-3'>
-                <button className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'>
+                <Button
+                  type='submit'
+                  isLoading={loginMutation.isPending}
+                  disabled={loginMutation.isPending}
+                  className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
+                >
                   Đăng nhập
-                </button>
+                </Button>
               </div>
               <div className='flex items-center justify-center gap-1 mt-3'>
                 <span className='text-slate-400'>Bạn chưa có tài khoản?</span>
-                <Link to='/register' className='text-slate-400'>
+                <Link to={path.register} className='text-slate-400'>
                   Đăng ký
                 </Link>
               </div>
