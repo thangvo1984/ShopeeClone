@@ -1,14 +1,12 @@
+import { InputHTMLAttributes } from 'react'
 import { RegisterOptions, UseFormRegister } from 'react-hook-form'
 
-type InputProps = {
-  type: React.HTMLInputTypeAttribute
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   classNameInput?: string
   classNameParent?: string
-  placeholder?: string
-  autoComplete: string
+  classNameError?: string
   errorMessage?: string
-  name: string
-  register: UseFormRegister<any>
+  register?: UseFormRegister<any>
   rules?: RegisterOptions
 }
 
@@ -21,8 +19,10 @@ const Input = ({
   name,
   register,
   rules,
-  autoComplete
+  autoComplete,
+  classNameError
 }: InputProps) => {
+  const registerResult = register && name ? register(name, rules) : {}
   return (
     <div className={classNameParent}>
       <input
@@ -30,9 +30,11 @@ const Input = ({
         className={classNameInput}
         placeholder={placeholder}
         autoComplete={autoComplete}
-        {...register(name, rules)}
+        {...registerResult}
       />
-      <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm'>{errorMessage}</div>
+      <div className={classNameError ? classNameError : 'mt-1 text-red-600 min-h-[1.25rem] text-sm'}>
+        {errorMessage}
+      </div>
     </div>
   )
 }
