@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerAccount } from 'src/apis/auth.api'
+import authApi from 'src/apis/auth.api'
 import Button from 'src/components/Button'
 import Input from 'src/components/Input'
 import { path } from 'src/constant/path'
@@ -28,7 +28,7 @@ const Register = () => {
   const navigate = useNavigate()
 
   const registerAccountMutation = useMutation({
-    mutationFn: (body: Omit<Schema, 'confirm_password'>) => registerAccount(body),
+    mutationFn: (body: Omit<Schema, 'confirm_password'>) => authApi.registerAccount(body),
     onError: (error) => {
       if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<Schema, 'confirm_password'>>>(error)) {
         const formError = error.response?.data.data
