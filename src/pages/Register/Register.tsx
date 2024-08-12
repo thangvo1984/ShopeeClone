@@ -11,7 +11,7 @@ import { path } from 'src/constant/path'
 import { AppContext } from 'src/contexts/app.context'
 import { ErrorResponse } from 'src/types/utils.type'
 import { setProfileToLS } from 'src/utils/auth'
-import { Schema, schema } from 'src/utils/rules'
+import { RegisterSchema as Schema, schema } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/util'
 
 const Register = () => {

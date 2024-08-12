@@ -4,7 +4,7 @@ import { IProduct } from 'src/types/product.type'
 import { formatNumberCurrency, formatNumberToSocialStyle } from 'src/utils/util'
 
 const Product = ({ product }: { product: IProduct }) => {
-  console.log('product========', product)
+  // console.log('product========', product)
 
   return (
     <Link to=''>
