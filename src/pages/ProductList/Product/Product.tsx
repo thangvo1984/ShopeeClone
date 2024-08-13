@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import ProductRating from 'src/components/ProductRating'
+import { path } from 'src/constant/path'
 import { IProduct } from 'src/types/product.type'
 import { formatNumberCurrency, formatNumberToSocialStyle } from 'src/utils/util'
 
@@ -7,7 +8,7 @@ const Product = ({ product }: { product: IProduct }) => {
   // console.log('product========', product)
 
   return (
-    <Link to=''>
+    <Link to={`${path.home}${product._id}`}>
       <div className='bg-white overflow-hidden shadow rounded-sm hover:translate-y-[-0.04rem] hover:shadow-md duration-100 transition-transform'>
         <div className='w-full pt-[100%] relative'>
           <img
