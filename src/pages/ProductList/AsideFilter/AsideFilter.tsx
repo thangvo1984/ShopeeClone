@@ -7,10 +7,11 @@ import Button from 'src/components/Button'
 import InputNumber from 'src/components/InputNumber'
 import RatingStarts from 'src/components/RatingStarts'
 import { path } from 'src/constant/path'
-import { QueryConfig } from 'src/pages/ProductList/ProductList'
+import { QueryConfig } from 'src/hooks/useQueryConfig'
 import { Category } from 'src/types/category.type'
 import { NoUndefinedField } from 'src/types/utils.type'
 import { schema, Schema } from 'src/utils/rules'
+import { ObjectSchema } from 'yup'
 
 interface Props {
   categories: Category[]
@@ -36,8 +37,7 @@ const AsideFilter = ({ categories, queryConfig }: Props) => {
       price_min: '',
       price_max: ''
     },
-    //@ts-ignore
-    resolver: yupResolver(priceSchema),
+    resolver: yupResolver(priceSchema as ObjectSchema<FormData>),
     shouldFocusError: false
   })
   const valueForm = watch()

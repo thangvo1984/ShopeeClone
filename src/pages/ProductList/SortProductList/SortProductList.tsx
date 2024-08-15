@@ -4,7 +4,7 @@ import { createSearchParams, Link, useNavigate } from 'react-router-dom'
 import Button from 'src/components/Button'
 import { path } from 'src/constant/path'
 import { sortBy, order as orderConstant } from 'src/constant/product'
-import { QueryConfig } from 'src/pages/ProductList/ProductList'
+import { QueryConfig } from 'src/hooks/useQueryConfig'
 import { ProductListConfig } from 'src/types/product.type'
 
 interface Props {
