@@ -11,8 +11,9 @@ import { path } from 'src/constant/path'
 import { AppContext } from 'src/contexts/app.context'
 import { ErrorResponse } from 'src/types/utils.type'
 import { setProfileToLS } from 'src/utils/auth'
-import { RegisterSchema as Schema, schema } from 'src/utils/rules'
+import { RegisterSchema, schema } from 'src/utils/rules'
 import { isAxiosUnprocessableEntityError } from 'src/utils/util'
+import { ObjectSchema } from 'yup'
 
 const Register = () => {
   const {
@@ -20,23 +21,23 @@ const Register = () => {
     handleSubmit,
     setError,
     formState: { errors }
-  } = useForm<Schema>({
-    resolver: yupResolver(schema)
+  } = useForm<RegisterSchema>({
+    resolver: yupResolver(schema as ObjectSchema<RegisterSchema>)
   })
 
   const { setIsAuthenticated } = useContext(AppContext)
   const navigate = useNavigate()
 
   const registerAccountMutation = useMutation({
-    mutationFn: (body: Omit<Schema, 'confirm_password'>) => authApi.registerAccount(body),
+    mutationFn: (body: Omit<RegisterSchema, 'confirm_password'>) => authApi.registerAccount(body),
     onError: (error) => {
-      if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<Schema, 'confirm_password'>>>(error)) {
+      if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<RegisterSchema, 'confirm_password'>>>(error)) {
         const formError = error.response?.data.data
 
         if (formError) {
           Object.keys(formError).forEach((key) => {
-            setError(key as keyof Omit<Schema, 'confirm_password'>, {
-              message: formError[key as keyof Omit<Schema, 'confirm_password'>],
+            setError(key as keyof Omit<RegisterSchema, 'confirm_password'>, {
+              message: formError[key as keyof Omit<RegisterSchema, 'confirm_password'>],
               type: 'Server'
             })
           })
@@ -56,13 +57,13 @@ const Register = () => {
           navigate('/')
         },
         onError(error) {
-          if (isAxiosUnprocessableEntityError<ErrorResponse<Schema>>(error)) {
+          if (isAxiosUnprocessableEntityError<ErrorResponse<RegisterSchema>>(error)) {
             const formError = error.response?.data.data
 
             if (formError) {
               Object.keys(formError).forEach((key) => {
-                setError(key as keyof Schema, {
-                  message: formError[key as keyof Schema],
+                setError(key as keyof RegisterSchema, {
+                  message: formError[key as keyof RegisterSchema],
                   type: 'Server'
                 })
               })

@@ -1,15 +1,15 @@
 import React from 'react'
 import { InputHTMLAttributes } from 'react'
 
-interface Props extends InputHTMLAttributes<HTMLInputElement> {
+export interface INumberInputProps extends InputHTMLAttributes<HTMLInputElement> {
   classNameInput?: string
   classNameParent?: string
   classNameError?: string
   errorMessage?: string
 }
 
-const InputNumber = React.forwardRef<HTMLInputElement, Props>(
-  ({ errorMessage, classNameParent, classNameInput, classNameError, onChange, ...rest }: Props, ref) => {
+const InputNumber = React.forwardRef<HTMLInputElement, INumberInputProps>(
+  ({ errorMessage, classNameParent, classNameInput, classNameError, onChange, ...rest }: INumberInputProps, ref) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target
       if ((/^\d+$/.test(value) || value === '') && onChange) {

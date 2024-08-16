@@ -1,14 +1,17 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { has, omit } from 'lodash'
 import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { createSearchParams, Link, useNavigate } from 'react-router-dom'
 import authApi from 'src/apis/auth.api'
+import purchaseApi from 'src/apis/purchase.api'
 import Popover from 'src/components/Popover'
 import { path } from 'src/constant/path'
+import { purchaseStatus } from 'src/constant/purchase'
 import { AppContext } from 'src/contexts/app.context'
 import useQueryConfig from 'src/hooks/useQueryConfig'
+import { PurchaseListStatus } from 'src/types/purchase.type'
 import { schema, Schema } from 'src/utils/rules'
 
 type FormData = Pick<Schema, 'name'>
@@ -33,6 +36,11 @@ const Header = () => {
     onError(error) {
       console.log('error========', error)
     }
+  })
+
+  const { data } = useQuery({
+    queryKey: ['purchases', { status: purchaseStatus.inCart }],
+    queryFn: () => purchaseApi.getPurchases({ status: purchaseStatus.inCart as PurchaseListStatus })
   })
 
   const onSubmit = handleSubmit((data) => {
