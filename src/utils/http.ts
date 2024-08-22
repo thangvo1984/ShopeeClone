@@ -33,7 +33,7 @@ class Http {
     // Add a response interceptor
     this.instance.interceptors.response.use(
       (response) => {
-        console.log('response=======', response)
+        // console.log('response=======', response)
         const { url } = response.config
         if (url === path.login || url === path.register) {
           const data = response.data as AuthResponse
@@ -46,8 +46,15 @@ class Http {
         }
         return response
       },
-      function (error: AxiosError) {
+      (error: AxiosError) => {
         console.log('error response intercepters axios====', error)
+        if (error.response?.status === 401) {
+          const data: any | undefined = error.response?.data
+          if (data.data.name === 'EXPIRED_TOKEN') {
+            this.accessToken = ''
+            clearLocalStorage()
+          }
+        }
         if (error.response?.status !== HttpStatusCode.UnprocessableEntity) {
           const data: any | undefined = error.response?.data
           const message = data.message || error.message

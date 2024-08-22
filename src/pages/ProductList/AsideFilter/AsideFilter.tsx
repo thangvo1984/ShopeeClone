@@ -5,6 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { createSearchParams, Link, useNavigate } from 'react-router-dom'
 import Button from 'src/components/Button'
 import InputNumber from 'src/components/InputNumber'
+import InputV2 from 'src/components/InputV2'
 import RatingStarts from 'src/components/RatingStarts'
 import { path } from 'src/constant/path'
 import { QueryConfig } from 'src/hooks/useQueryConfig'
@@ -227,7 +228,7 @@ const AsideFilter = ({ categories, queryConfig }: Props) => {
         <div>Khoảng giá</div>
         <form className='mt-2' onSubmit={onSubmit}>
           <div className='flex items-start'>
-            <Controller
+            {/* <Controller
               control={control}
               name='price_min'
               render={({ field }) => {
@@ -246,10 +247,23 @@ const AsideFilter = ({ categories, queryConfig }: Props) => {
                   />
                 )
               }}
+            /> */}
+
+            <InputV2
+              control={control}
+              name='price_min'
+              type='number'
+              className='grow'
+              placeholder='Từ'
+              classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+              onChange={() => {
+                trigger('price_max')
+              }}
+              classNameError='hidden'
             />
 
             <div className='mt-2 shrink-0'>-</div>
-            <Controller
+            {/* <Controller
               control={control}
               name='price_max'
               render={({ field }) => {
@@ -268,6 +282,18 @@ const AsideFilter = ({ categories, queryConfig }: Props) => {
                   />
                 )
               }}
+            /> */}
+            <InputV2
+              control={control}
+              name='price_max'
+              type='number'
+              className='grow'
+              placeholder='Từ'
+              classNameInput='p-1 w-full outline-none border border-gray-300 focus:border-gray-500 rounded-sm focus:shadow-sm'
+              onChange={() => {
+                trigger('price_min')
+              }}
+              classNameError='hidden'
             />
           </div>
           <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm text-center'>{errors.price_min?.message}</div>

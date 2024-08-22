@@ -3,11 +3,13 @@ import classNames from 'classnames'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import productApi from 'src/apis/product.api'
 import purchaseApi from 'src/apis/purchase.api'
-import InputNumber from 'src/components/InputNumber'
 import ProductRating from 'src/components/ProductRating'
 import QuantityController from 'src/components/QuantityController'
+import { purchasesStatus } from 'src/constant/purchase'
+import { queryClient } from 'src/main'
 import Product from 'src/pages/ProductList/Product'
 import { IProduct, ProductListConfig } from 'src/types/product.type'
 import { formatNumberCurrency, formatNumberToSocialStyle, getIdFromNameId, rateSale } from 'src/utils/util'
@@ -79,10 +81,10 @@ const ProductDetail = () => {
     // const offsetX = event.pageX - (rect.x + window.scrollX)
     // const offsetY = event.pageX - (rect.y + window.scrollY)
 
-    const top = offsetY * (1 - naturalHeight / rect.height)
-    const left = offsetX * (1 - naturalWidth / rect.width)
-    image.style.width = naturalWidth + 'px'
-    image.style.height = naturalHeight + 'px'
+    const top = offsetY * (1 - (naturalHeight * 1) / rect.height)
+    const left = offsetX * (1 - (naturalWidth * 1) / rect.width)
+    image.style.width = naturalWidth * 1 + 'px'
+    image.style.height = naturalHeight * 1 + 'px'
     image.style.maxWidth = 'unset'
     image.style.top = top + 'px'
     image.style.left = left + 'px'
@@ -103,13 +105,23 @@ const ProductDetail = () => {
   })
 
   const addToCart = () => {
-    addToCartMutation.mutate({
-      buy_count: buyCount,
-      product_id: product?._id as string
-    })
+    addToCartMutation.mutate(
+      {
+        buy_count: buyCount,
+        product_id: product?._id as string
+      },
+      {
+        onSuccess: () => {
+          toast.success('Thêm vào giỏ hàng thành công', { autoClose: 1000 })
+          queryClient.invalidateQueries({
+            queryKey: ['purchases', { status: purchasesStatus.inCart }]
+          })
+        }
+      }
+    )
   }
 
-  console.log('product========', product)
+  // console.log('product========', product)
   if (!product) {
     return null
   }
@@ -219,10 +231,10 @@ const ProductDetail = () => {
                 <QuantityController
                   classNameWrapper=' ml-2'
                   max={product.quantity}
-                  value={buyCount}
-                  onDecrease={handleBuyCount}
-                  onIncrease={handleBuyCount}
-                  onType={handleBuyCount}
+                  // value={buyCount}
+                  // onDecrease={handleBuyCount}
+                  // onIncrease={handleBuyCount}
+                  // onType={handleBuyCount}
                 />
                 <div className='ml-6 text-sm text-gray-500'>
                   {formatNumberCurrency(product.quantity)} sản phẩm có sẵn
