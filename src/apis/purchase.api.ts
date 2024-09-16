@@ -13,11 +13,12 @@ const purchaseApi = {
       params
     })
   },
-  buyProducts(body: { product_id: string; buy_count: number }) {
+  buyProducts(body: { product_id: string; buy_count: number }[]) {
     return http.post<SuccessResponse<Purchase[]>>(`${URL}/buy-products`, body)
   },
-  updatePurchase(body: { product_id: string; buy_count: number }) {
-    return http.put<SuccessResponse<Purchase>>(`${URL}/update-purchase`, body)
+  updatePurchase(body: { product_id: string; buy_count: number; purchaseIndex: number }) {
+    const params = { product_id: body.product_id, buy_count: body.buy_count }
+    return http.put<SuccessResponse<Purchase>>(`${URL}/update-purchase`, params)
   },
   deletePurchase(purchaseIds: string[]) {
     return http.delete<SuccessResponse<{ deleted_count: number }>>(`${URL}`, { data: purchaseIds })

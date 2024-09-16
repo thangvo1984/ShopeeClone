@@ -48,12 +48,8 @@ class Http {
       },
       (error: AxiosError) => {
         console.log('error response intercepters axios====', error)
-        if (error.response?.status === 401) {
-          const data: any | undefined = error.response?.data
-          if (data.data.name === 'EXPIRED_TOKEN') {
-            this.accessToken = ''
-            clearLocalStorage()
-          }
+        if (error.response?.status === HttpStatusCode.Unauthorized) {
+          clearLocalStorage()
         }
         if (error.response?.status !== HttpStatusCode.UnprocessableEntity) {
           const data: any | undefined = error.response?.data

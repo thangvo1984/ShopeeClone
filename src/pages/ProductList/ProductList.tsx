@@ -28,8 +28,8 @@ const ProductList = () => {
     }
   })
 
-  console.log('data getCategory=======', getCategory)
-  console.log('queryConfig=======', queryConfig)
+  // console.log('data getCategory=======', getCategory)
+  // console.log('queryConfig=======', queryConfig)
 
   return (
     <div className='bg-gray-200 py-6'>

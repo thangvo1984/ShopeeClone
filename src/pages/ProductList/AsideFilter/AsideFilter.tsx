@@ -43,8 +43,8 @@ const AsideFilter = ({ categories, queryConfig }: Props) => {
   })
   const valueForm = watch()
 
-  console.log('valueFormlllllllllll', valueForm)
-  console.log('errorsllllllllll', errors)
+  // console.log('valueFormlllllllllll', valueForm)
+  // console.log('errorsllllllllll', errors)
 
   const isActivedCategory = (categoryValue: string) => {
     return category === categoryValue

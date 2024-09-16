@@ -1,15 +1,15 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import classNames from 'classnames'
 import DOMPurify from 'dompurify'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import productApi from 'src/apis/product.api'
 import purchaseApi from 'src/apis/purchase.api'
 import ProductRating from 'src/components/ProductRating'
 import QuantityController from 'src/components/QuantityController'
+import { path } from 'src/constant/path'
 import { purchasesStatus } from 'src/constant/purchase'
-import { queryClient } from 'src/main'
 import Product from 'src/pages/ProductList/Product'
 import { IProduct, ProductListConfig } from 'src/types/product.type'
 import { formatNumberCurrency, formatNumberToSocialStyle, getIdFromNameId, rateSale } from 'src/utils/util'
@@ -17,6 +17,9 @@ import { formatNumberCurrency, formatNumberToSocialStyle, getIdFromNameId, rateS
 const ProductDetail = () => {
   const { nameId } = useParams()
   const [buyCount, setBuyCount] = useState(1)
+  const navigate = useNavigate()
+
+  const queryClient = useQueryClient()
 
   // const id = nameId ? getIdFromNameId(nameId) : ''
   const id = getIdFromNameId(nameId!)
@@ -95,10 +98,6 @@ const ProductDetail = () => {
     image.removeAttribute('style')
   }
 
-  const handleBuyCount = (value: number) => {
-    setBuyCount(value)
-  }
-
   const addToCartMutation = useMutation({
     mutationFn: (body: { product_id: string; buy_count: number }) => purchaseApi.addToCart(body),
     onError: () => {}
@@ -119,6 +118,25 @@ const ProductDetail = () => {
         }
       }
     )
+  }
+
+  const buyNow = async () => {
+    const result = await addToCartMutation.mutateAsync(
+      {
+        buy_count: buyCount,
+        product_id: product?._id as string
+      },
+      {
+        onSuccess: () => {}
+      }
+    )
+
+    const purchase = result.data.data
+    navigate(path.cart, {
+      state: {
+        purchaseId: purchase._id
+      }
+    })
   }
 
   // console.log('product========', product)
@@ -252,7 +270,10 @@ const ProductDetail = () => {
                   />
                   Thêm vào giỏ hàng
                 </button>
-                <button className='ml-4 flex h-12 min-2-[5rem] items-center justify-center rounded-sm bg-orange px-5 capitalize text-white  shadow-sm outline-none hover:bg-orange/90'>
+                <button
+                  className='ml-4 flex h-12 min-2-[5rem] items-center justify-center rounded-sm bg-orange px-5 capitalize text-white  shadow-sm outline-none hover:bg-orange/90'
+                  onClick={buyNow}
+                >
                   Mua ngay
                 </button>
               </div>

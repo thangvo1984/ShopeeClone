@@ -6,6 +6,7 @@ interface Props extends INumberInputProps {
   onIncrease?: (value: number) => void
   onDecrease?: (value: number) => void
   onType?: (value: number) => void
+  onFocusOut?: (value: number) => void
   classNameWrapper?: string
 }
 
@@ -16,6 +17,7 @@ const QuantityController = ({
   onType,
   classNameWrapper = 'ml-10',
   value,
+  onFocusOut,
   ...rest
 }: Props) => {
   const [localValue, setLocalValue] = useState<number>(value ? Number(value) : 1)
@@ -28,6 +30,16 @@ const QuantityController = ({
       _value = 1
     }
     onType && onType(_value)
+    setLocalValue(_value)
+  }
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement, Element>) => {
+    let _value = Number(event.target.value)
+    if (max !== undefined && _value > max) {
+      _value = max
+    } else if (_value < 1) {
+      _value = 1
+    }
+    onFocusOut && onFocusOut(_value)
     setLocalValue(_value)
   }
 
@@ -51,14 +63,15 @@ const QuantityController = ({
     onDecrease && onDecrease(_value)
     setLocalValue(_value)
   }
-  console.log('value=====', value)
-  console.log('localValue=====', localValue)
+  // console.log('value=====', value)
+  // console.log('localValue=====', localValue)
 
   return (
     <div className={'flex items-center ' + classNameWrapper}>
       <button
-        className='flex h-8 w-8 items-center justify-center rounded-l-sm border border-gray-300 text-gray-600'
+        className='flex h-8 w-9 items-center justify-center rounded-l-sm border border-gray-300 text-gray-600'
         onClick={decrease}
+        // disabled={value === 1 || localValue === 1}
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'
@@ -73,15 +86,17 @@ const QuantityController = ({
       </button>
       <InputNumber
         onChange={handleChange}
+        onBlur={handleBlur}
         value={value || localValue}
         className=''
         classNameError='hidden'
-        classNameInput='h-8 w-16 border-t border-b border-gray-300 p-1 text-center outline-none'
+        classNameInput='h-8 w-14 border-t border-b border-gray-300 p-1 text-center outline-none'
         {...rest}
       />
       <button
-        className='flex h-8 w-8 items-center justify-center rounded-r-sm border border-gray-300 text-gray-600'
+        className='flex h-8 w-9 items-center justify-center rounded-r-sm border border-gray-300 text-gray-600'
         onClick={increase}
+        // disabled={value === 1 || localValue === 1}
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'
